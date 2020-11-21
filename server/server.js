@@ -4,8 +4,7 @@ const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/test");
 const db = mongoose.connection;
 const app = express();
-const port = 3000;
-
+const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 let db_status = "MongoDB connection not successful.";
@@ -32,6 +31,7 @@ app.post("/posts", (req, res) => {
 });
 
 // Example -- http://localhost:3000/posts/
+
 app.get("/posts", (req, res) => {
   Post.find({}, (error, data) => {
     if (error) return res.sendStatus(500).json(error);
@@ -40,6 +40,7 @@ app.get("/posts", (req, res) => {
 });
 
 // Example -- http://localhost:3000/posts/5f98c4cd9f1d4c0ddc102e30
+
 app.get("/posts/:postId", (req, res) => {
   Post.findById(req.params.postId, (error, data) => {
     if (error) return res.sendStatus(500).json(error);
