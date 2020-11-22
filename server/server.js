@@ -1,28 +1,29 @@
 const express = require("express");
+const app = express();
+const port = 3000;
+
+// Express comes with a built in body parser that has built in support for JSON
 const bodyParser = require("body-parser");
+// Initialize the body parser to the Express app
+app.use(bodyParser.json());
+
+// Add mongoDB support to the project with Mongoose
 const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/test");
 const db = mongoose.connection;
-const app = express();
-const port = process.env.PORT || 3000;
-app.use(bodyParser.json());
 
+// This notifies the user if the connection to the DB was not successful.
 let db_status = "MongoDB connection not successful.";
 
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => (db_status = "Successfully opened connection to Mongo!"));
-
+// create the Mongoose Schema
 const postSchema = new mongoose.Schema({
   title: String,
   body: String,
 });
-
+//After declaring a schema, pass schema to a Mongoose model
 const Post = mongoose.model("Post", postSchema);
 
-app.get("/", (req, res) => {
-  res.send(db_status);
-});
-
+// Set up a new POST route to save new posts
 app.post("/posts", (req, res) => {
   const newPost = new Post(req.body);
   newPost.save((err, post) => {
@@ -30,8 +31,8 @@ app.post("/posts", (req, res) => {
   });
 });
 
-// Example -- http://localhost:3000/posts/
-
+// Set up a READ operation that reads all records and displays them
+// Using the Post constant created to query with the pattern {} which means all posts, with no constraints
 app.get("/posts", (req, res) => {
   Post.find({}, (error, data) => {
     if (error) return res.sendStatus(500).json(error);
@@ -39,8 +40,8 @@ app.get("/posts", (req, res) => {
   });
 });
 
-// Example -- http://localhost:3000/posts/5f98c4cd9f1d4c0ddc102e30
-
+// To READ just a single post, do the following:
+// Pass the id of the post into the request query string.
 app.get("/posts/:postId", (req, res) => {
   Post.findById(req.params.postId, (error, data) => {
     if (error) return res.sendStatus(500).json(error);
@@ -48,6 +49,9 @@ app.get("/posts/:postId", (req, res) => {
   });
 });
 
+// To set up an update operation, create a new PUT route
+// that finds the record in the database and
+// updates the specified fields.
 app.put("/posts/:postId", (req, res) => {
   Post.findByIdAndUpdate(
     req.params.postId,
@@ -59,6 +63,9 @@ app.put("/posts/:postId", (req, res) => {
   );
 });
 
+// To set up a DELETE operation, create a new DELETE route
+// that finds the record by ID in the database
+// and deletes it
 app.delete("/posts/:postId", (req, res) => {
   Post.findByIdAndRemove(req.params.postId, {}, (error, data) => {
     if (error) return res.sendStatus(500).json(error);
@@ -66,10 +73,13 @@ app.delete("/posts/:postId", (req, res) => {
   });
 });
 
-// app.get("/", (req, res) => res.send("Hello World!"));
+// Listen for "error" events about connection issues.
+db.on("error", console.error.bind(console, "connection error:"));
+// Tell user if connection was successful and update status
+db.once("open", () => (db_status = "Successfully opened connection to Mongo!"));
 
-app.listen(port, () =>
-  console.log(
-    `Successfully opened connection to Mongo!. Example app listening on port ${port}!`
-  )
-);
+// we need a port to listen this was declared in the port constant
+app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+// to test this, start your server by running ...about
+// node server.js
