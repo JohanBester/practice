@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Express comes with a built in body parser that has built in support for JSON
 const bodyParser = require("body-parser");
@@ -8,8 +8,14 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 
 // Add mongoDB support to the project with Mongoose
+// This is the way to connect to a MongoDB database in 2020:
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost/test");
+mongoose.connect("mongodb://localhost/test", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false,
+});
 const db = mongoose.connection;
 
 // This notifies the user if the connection to the DB was not successful.
