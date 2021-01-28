@@ -87,5 +87,5 @@ db.once("open", () => (db_status = "Successfully opened connection to Mongo!"));
 // we need a port to listen this was declared in the port constant
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 
-// to test this, start your server by running ...about
+// to test this, start your server by running
 // node server.js
